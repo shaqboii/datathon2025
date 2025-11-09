@@ -10,7 +10,7 @@ HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
 }
 
-DATA_DIR = Path("../testCases")  # Your folder
+DATA_DIR = Path("testCases")  # Your folder
 
 def detect_file_type(file_path):
     mime_type, _ = mimetypes.guess_type(file_path)
