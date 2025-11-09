@@ -11,6 +11,9 @@ HEADERS = {
 }
 
 DATA_DIR = Path("testCases")  # Your folder
+OUTPUT_DIR = Path("results")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 def detect_file_type(file_path):
     mime_type, _ = mimetypes.guess_type(file_path)
@@ -55,7 +58,7 @@ def file_to_message(file_path, file_type):
         return None
 
 # Classification prompt
-prompt_text = "Classify this content as one of: sensitive, classified, public, or unsafe. Additionally, detect any PII and state which page it is on. Additionally, describe why you classified a document as so, and what the PII violation was."
+prompt_text = "Classify this content as one of: sensitive, classified, public, or unsafe. For example, if a document has blueprints or proprietary information, it shouldn't be public. Additionally, detect any PII and state which page it is on. Additionally, describe why you classified a document as so, and what the PII violation was, and where the potentially proprietary information is."
 
 def query_cloud(messages, model="moonshotai/Kimi-K2-Thinking:novita"):
     payload = {
@@ -77,14 +80,28 @@ for file_path in DATA_DIR.iterdir():
             print(f"Skipping unknown file type: {file_path.name}")
             continue
 
-        # Compose chat messages
         messages = [
             {"role": "user", "content": [file_message, {"type": "text", "text": prompt_text}]}
         ]
 
-        # Query cloud model
         try:
             response = query_cloud(messages)
             print(f"File: {file_path.name}\nClassification: {response}\n")
+
+            md_content = ""
+            if isinstance(response, dict):
+                try:
+                    md_content = response["choices"][0]["message"]["content"]
+                except Exception as e:
+                    md_content = str(response)  # fallback if structure changes/missing keys
+            else:
+                md_content = str(response)
+
+            out_file = OUTPUT_DIR / (file_path.stem + ".md")
+            with open(out_file, "w", encoding="utf-8") as f:
+                f.write(md_content)
+
+
         except Exception as e:
             print(f"Error processing {file_path.name}: {e}")
+
