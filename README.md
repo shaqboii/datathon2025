@@ -6,7 +6,11 @@ The challenge required us to leverage LLMs to automatically detect PII and other
 
 ## Run
 
-Create a `credentials.py` file in the same directory as `main.py` that contains your Hugging Face API token
+Create a `credentials.py` file in the same directory as `main.py` that contains your Hugging Face API token in the format
+
+```md
+TOKEN = "<token>"
+```
 
 Then run
 
