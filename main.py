@@ -10,7 +10,7 @@ HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
 }
 
-DATA_DIR = Path("testCases")  # Your folder
+DATA_DIR = Path("../testCases")  # Your folder
 
 def detect_file_type(file_path):
     mime_type, _ = mimetypes.guess_type(file_path)
@@ -63,7 +63,11 @@ def query_cloud(messages, model="moonshotai/Kimi-K2-Thinking:novita"):
         "model": model
     }
     response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.json()
+    try:
+        return response.json()
+    except Exception as e:
+        print(f"Non-JSON or empty response: {response.status_code} {response.text}")
+        return {"error": "Non-JSON or empty response", "status_code": response.status_code, "raw": response.text}
 
 for file_path in DATA_DIR.iterdir():
     if file_path.is_file():
